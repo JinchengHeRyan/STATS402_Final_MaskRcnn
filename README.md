@@ -3,6 +3,7 @@
 A PyTorch implementation of simple Mask R-CNN.
 
 This repository is a toy example of Mask R-CNN with two features:
+
 - It is pure python code and can be run immediately using PyTorch 1.4 without build
 - Simplified construction and easy to understand how the model works
 
@@ -16,7 +17,8 @@ The code is based largely on [TorchVision](https://github.com/pytorch/vision), b
 
 - **matplotlib** - visualizing images and results
 
-- **[pycocotools](https://github.com/cocodataset/cocoapi)** - for COCO dataset and evaluation; Windows version is [here](https://github.com/philferriere/cocoapi)
+- **[pycocotools](https://github.com/cocodataset/cocoapi)** - for COCO dataset and evaluation; Windows version
+  is [here](https://github.com/philferriere/cocoapi)
 
 There is a problem with pycocotools for Windows. See [Issue #356](https://github.com/cocodataset/cocoapi/issues/356).
 
@@ -32,11 +34,13 @@ If you want to train your own dataset, you may:
 
 - convert your dataset to COCO-style
 
-**PASCAL VOC 2012** ([download](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar)): ```http://host.robots.ox.ac.uk/pascal/VOC/voc2012/```
+**PASCAL VOC
+2012** ([download](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar)): ```http://host.robots.ox.ac.uk/pascal/VOC/voc2012/```
 
 **MS COCO 2017**: ```http://cocodataset.org/```
 
 COCO dataset directory should be like this:
+
 ```
 coco2017/
     annotations/
@@ -58,12 +62,14 @@ The code will check the dataset first before start, filtering samples without an
 ```
 python train.py --use-cuda --iters 200 --dataset coco --data-dir /data/coco2017
 ```
+
 or modify the parameters in ```run.sh```, and run:
+
 ```
 bash ./run.sh
 ```
 
-Note: This is a simple model and only supports ```batch_size = 1```. 
+Note: This is a simple model and only supports ```batch_size = 1```.
 
 The code will save and resume automatically using the checkpoint file.
 
@@ -79,6 +85,5 @@ The model utilizes part of TorchVision's weights, which is pretrained on COCO da
 
 Test on VOC 2012 Segmentation val, on 1 RTX 2080Ti GPU:
 
-| model | backbone | imgs/s (train) | imgs/s (test)|epoch | bbox AP | mask AP |
-| ---- | ---- | --- | --- | -- | -- | -- |
-| Mask R-CNN | ResNet 50 | 11.5 | 15.8 | 5 | 52.2 | 37.0 |
+| model | backbone | imgs/s (train) | imgs/s (test)|epoch | bbox AP | mask AP | | ---- | ---- | --- | --- | -- | -- | --
+| | Mask R-CNN | ResNet 50 | 11.5 | 15.8 | 5 | 52.2 | 37.0 |

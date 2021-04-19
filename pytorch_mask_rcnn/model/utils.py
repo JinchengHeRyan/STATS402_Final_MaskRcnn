@@ -10,7 +10,7 @@ class Matcher:
     def __call__(self, iou):
         """
         Arguments:
-            iou (Tensor[M, N]): containing the pairwise quality between 
+            iou (Tensor[M, N]): containing the pairwise quality between
             M ground-truth boxes and N predicted boxes.
 
         Returns:
@@ -18,20 +18,20 @@ class Matcher:
             -1 means ignoring this box.
             matched_idx (Tensor[N]): indices of gt box matched by each predicted box.
         """
-        
+
         value, matched_idx = iou.max(dim=0)
-        label = torch.full((iou.shape[1],), -1, dtype=torch.float, device=iou.device) 
-        
+        label = torch.full((iou.shape[1],), -1, dtype=torch.float, device=iou.device)
+
         label[value >= self.high_threshold] = 1
         label[value < self.low_threshold] = 0
-        
+
         if self.allow_low_quality_matches:
             highest_quality = iou.max(dim=1)[0]
             gt_pred_pairs = torch.where(iou == highest_quality[:, None])[1]
             label[gt_pred_pairs] = 1
 
         return label, matched_idx
-    
+
 
 class BalancedPositiveNegativeSampler:
     def __init__(self, num_samples, positive_fraction):
@@ -55,27 +55,37 @@ class BalancedPositiveNegativeSampler:
 
         return pos_idx, neg_idx
 
-    
-def roi_align(features, rois, spatial_scale, pooled_height, pooled_width, sampling_ratio):
+
+def roi_align(
+    features, rois, spatial_scale, pooled_height, pooled_width, sampling_ratio
+):
     if torch.__version__ >= "1.5.0":
         return torch.ops.torchvision.roi_align(
-            features, rois, spatial_scale, pooled_height, pooled_width, sampling_ratio, False)
+            features,
+            rois,
+            spatial_scale,
+            pooled_height,
+            pooled_width,
+            sampling_ratio,
+            False,
+        )
     else:
         return torch.ops.torchvision.roi_align(
-            features, rois, spatial_scale, pooled_height, pooled_width, sampling_ratio)
+            features, rois, spatial_scale, pooled_height, pooled_width, sampling_ratio
+        )
 
 
 class AnchorGenerator:
     def __init__(self, sizes, ratios):
         self.sizes = sizes
         self.ratios = ratios
-        
+
         self.cell_anchor = None
         self._cache = {}
-        
+
     def set_cell_anchor(self, dtype, device):
         if self.cell_anchor is not None:
-            return 
+            return
         sizes = torch.tensor(self.sizes, dtype=dtype, device=device)
         ratios = torch.tensor(self.ratios, dtype=dtype, device=device)
 
@@ -86,7 +96,7 @@ class AnchorGenerator:
         ws = (sizes[:, None] * w_ratios[None, :]).view(-1)
 
         self.cell_anchor = torch.stack([-ws, -hs, ws, hs], dim=1) / 2
-        
+
     def grid_anchor(self, grid_size, stride):
         dtype, device = self.cell_anchor.dtype, self.cell_anchor.device
         shift_x = torch.arange(0, grid_size[1], dtype=dtype, device=device) * stride[1]
@@ -99,13 +109,13 @@ class AnchorGenerator:
 
         anchor = (shift + self.cell_anchor).reshape(-1, 4)
         return anchor
-        
+
     def cached_grid_anchor(self, grid_size, stride):
         key = grid_size + stride
         if key in self._cache:
             return self._cache[key]
         anchor = self.grid_anchor(grid_size, stride)
-        
+
         if len(self._cache) >= 3:
             self._cache.clear()
         self._cache[key] = anchor
@@ -115,8 +125,8 @@ class AnchorGenerator:
         dtype, device = feature.dtype, feature.device
         grid_size = tuple(feature.shape[-2:])
         stride = tuple(int(i / g) for i, g in zip(image_size, grid_size))
-        
+
         self.set_cell_anchor(dtype, device)
-        
+
         anchor = self.cached_grid_anchor(grid_size, stride)
         return anchor

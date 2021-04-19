@@ -13,12 +13,12 @@ def datasets(ds, *args, **kwargs):
         return COCODataset(*args, **kwargs)
     else:
         raise ValueError("'ds' must be in '{}', but got '{}'".format(choice, ds))
-    
-    
+
+
 def collate_wrapper(batch):
     return CustomBatch(batch)
 
-    
+
 class CustomBatch:
     def __init__(self, data):
         transposed_data = list(zip(*data))
@@ -28,6 +28,7 @@ class CustomBatch:
     # custom memory pinning method on custom type
     def pin_memory(self):
         self.images = [img.pin_memory() for img in self.images]
-        self.targets = [{k: v.pin_memory() for k, v in tgt.items()} for tgt in self.targets]
+        self.targets = [
+            {k: v.pin_memory() for k, v in tgt.items()} for tgt in self.targets
+        ]
         return self
-    

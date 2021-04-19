@@ -13,7 +13,7 @@ def xyxy2xywh(box):
 
 
 def factor(n, base=1):
-    base = base * 0.7 ** (n // 6) # mask 0.8
+    base = base * 0.7 ** (n // 6)  # mask 0.8
     i = n % 6
     if i < 3:
         f = [0, 0, 0]
@@ -31,8 +31,8 @@ def show(images, targets=None, classes=None):
             show_single(images[i], targets[i] if targets else targets, classes)
     else:
         show_single(images, targets, classes)
-        
-    
+
+
 def show_single(image, target, classes):
     """
     Show the image, with or without the target
@@ -48,11 +48,11 @@ def show_single(image, target, classes):
             f = torch.tensor(factor(i, 0.4)).reshape(3, 1, 1).to(image)
             value = f * m
             image += value
-    
+
     ax = plt.subplot(111)
     image = image.clamp(0, 1)
     im = image.cpu().numpy()
-    ax.imshow(im.transpose(1, 2, 0)) # RGB
+    ax.imshow(im.transpose(1, 2, 0))  # RGB
     H, W = image.shape[-2:]
     ax.set_title("H: {}   W: {}".format(H, W))
     ax.axis("off")
@@ -60,9 +60,11 @@ def show_single(image, target, classes):
     if target:
         if "labels" in target:
             if classes is None:
-                raise ValueError("'classes' should not be None when 'target' has 'labels'!")
+                raise ValueError(
+                    "'classes' should not be None when 'target' has 'labels'!"
+                )
             tags = {l: i for i, l in enumerate(tuple(set(target["labels"].tolist())))}
-            
+
         index = 0
         if "boxes" in target:
             boxes = target["boxes"]
@@ -77,14 +79,24 @@ def show_single(image, target, classes):
                         s = round(s.item() * 100)
                         txt = "{} {}%".format(txt, s)
                     ax.text(
-                        b[0], b[1], txt, fontsize=9, color=(1, 1, 1),  
-                        horizontalalignment="left", verticalalignment="bottom",
-                        bbox=dict(boxstyle="square", fc="black", lw=1, alpha=1)
+                        b[0],
+                        b[1],
+                        txt,
+                        fontsize=9,
+                        color=(1, 1, 1),
+                        horizontalalignment="left",
+                        verticalalignment="bottom",
+                        bbox=dict(boxstyle="square", fc="black", lw=1, alpha=1),
                     )
-                    
-                    
-                rect = patches.Rectangle(b[:2], b[2], b[3], linewidth=2, edgecolor=factor(index), facecolor="none")
+
+                rect = patches.Rectangle(
+                    b[:2],
+                    b[2],
+                    b[3],
+                    linewidth=2,
+                    edgecolor=factor(index),
+                    facecolor="none",
+                )
                 ax.add_patch(rect)
 
     plt.show()
-    

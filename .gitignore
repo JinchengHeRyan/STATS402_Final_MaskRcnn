@@ -1,3 +1,4 @@
 .DS_Store
 .idea/
 *.pth
+pytorch_mask_rcnn/gpu_info.json

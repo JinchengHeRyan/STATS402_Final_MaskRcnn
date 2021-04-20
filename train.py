@@ -78,7 +78,8 @@ def main(args):
         trained_epoch = epoch + 1
         print("training: {:.2f} s, evaluation: {:.2f} s".format(A, B))
         pmr.collect_gpu_info("maskrcnn", [1 / iter_train, 1 / iter_eval])
-        print(eval_output.get_AP())
+        if len(list(eval_output.buffer)) > 0:
+            print(eval_output.get_AP())
 
         pmr.save_ckpt(
             model, optimizer, trained_epoch, args.ckpt_path, eval_info=str(eval_output)
@@ -112,7 +113,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--dataset", default="coco", help="coco or voc")
     parser.add_argument("--data-dir", default="/data/coco2017")
-    parser.add_argument("--ckpt-path")
+    parser.add_argument("--ckpt_path")
     parser.add_argument("--results")
 
     parser.add_argument("--seed", type=int, default=3)
@@ -134,6 +135,11 @@ if __name__ == "__main__":
         args.lr = 0.02 * 1 / 16  # lr should be 'batch_size / 16 * 0.02'
     if args.ckpt_path is None:
         args.ckpt_path = "./maskrcnn_{}.pth".format(args.dataset)
+    else:
+        os.makedirs(args.ckpt_path, exist_ok=True)
+        args.ckpt_path = os.path.join(
+            args.ckpt_path, "maskrcnn_{}.pth".format(args.dataset)
+        )
     if args.results is None:
         args.results = os.path.join(os.path.dirname(args.ckpt_path), "results.pth")
 

@@ -3,3 +3,4 @@
 *.pth
 pytorch_mask_rcnn/gpu_info.json
 .ipynb_checkpoints/
+*.ipynb

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 dataset="coco"
-epochs=100
+epochs=1000
 iters=200
 ckpt_path="chkpt"
 

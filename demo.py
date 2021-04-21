@@ -24,7 +24,7 @@ from PIL import Image
 use_cuda = True
 dataset = "coco"
 # ckpt_path = "../ckpt/maskrcnn_voc-5.pth"
-ckpt_path = "./chkpt/maskrcnn_coco-100.pth"
+ckpt_path = "./chkpt/maskrcnn_coco-947.pth"
 # data_dir = "E:/PyTorch/data/voc2012/"
 data_dir = "/mingback/students/jincheng/data/COCO2017"
 
@@ -47,38 +47,42 @@ if ckpt_path:
     print(checkpoint["eval_info"])
     del checkpoint
     torch.cuda.empty_cache()
-    
+
 for p in model.parameters():
     p.requires_grad_(False)
 
 # %%
-iters = 30
+iters = 3
 
 for i, (image, target) in enumerate(d):
     image = image.to(device)
     target = {k: v.to(device) for k, v in target.items()}
-    
+
     with torch.no_grad():
         result = model(image)
-        
+
     plt.figure(figsize=(12, 15))
     pmr.show(image, result, ds.classes)
+    plt.imshow(torch.sum(result["masks"], axis=0).cpu())
+    plt.show()
 
     if i >= iters - 1:
         break
 
 # %%
-img_dir = "image/IMG_3437.jpeg"
-image = Image.open(img_dir)
-image = image.convert("RGB")
-image = transforms.ToTensor()(image)
-image = image.to(device)
-target = {k: v.to(device) for k, v in target.items()}
+img_dir_list = ["image/IMG_0952.jpeg", "image/IMG_3309.jpeg", "image/IMG_3454.jpeg"]
+for img_dir in img_dir_list:
+    image = Image.open(img_dir)
+    image = image.convert("RGB")
+    image = transforms.ToTensor()(image)
+    image = image.to(device)
+    target = {k: v.to(device) for k, v in target.items()}
 
-with torch.no_grad():
-    result = model(image)
+    with torch.no_grad():
+        result = model(image)
 
-plt.figure(figsize=(12, 15))
-pmr.show(image, result, ds.classes)
-
-# %%
+    plt.figure(figsize=(12, 15))
+    print(result.keys())
+    pmr.show(image, result, ds.classes)
+    plt.imshow(torch.sum(result["masks"], axis=0).cpu())
+    plt.show()

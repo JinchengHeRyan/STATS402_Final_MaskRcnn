@@ -25,21 +25,23 @@ def factor(n, base=1):
     return f
 
 
-def show(images, targets=None, classes=None):
+def show(images, targets=None, classes=None, save_path=None, figsize=None):
     if isinstance(images, (list, tuple)):
         for i in range(len(images)):
-            show_single(images[i], targets[i] if targets else targets, classes)
+            show_single(images[i], targets[i] if targets else targets, classes, save_path, figsize=figsize)
     else:
-        show_single(images, targets, classes)
+        show_single(images, targets, classes, save_path, figsize=figsize)
 
 
-def show_single(image, target, classes):
+def show_single(image, target, classes, save_path=None, figsize=None):
     """
     Show the image, with or without the target
     Arguments:
         image (Tensor[3, H, W])
         target (Dict[Tensor])
     """
+    if figsize is not None:
+        plt.figure(figsize=figsize)
     image = image.clone()
     if target and "masks" in target:
         masks = target["masks"].unsqueeze(1)
@@ -99,4 +101,6 @@ def show_single(image, target, classes):
                 )
                 ax.add_patch(rect)
 
+    if save_path is not None:
+        plt.savefig(save_path)
     plt.show()

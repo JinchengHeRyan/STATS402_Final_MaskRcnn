@@ -1,4 +1,5 @@
 .DS_Store
+*.pyc
 .idea/
 *.pth
 pytorch_mask_rcnn/gpu_info.json
@@ -6,3 +7,5 @@ pytorch_mask_rcnn/gpu_info.json
 *.ipynb
 image/*
 !image/001.png
+convertMovie/img/*
+convertMovie/movie/*

@@ -19,7 +19,9 @@ import matplotlib.pyplot as plt
 import pytorch_mask_rcnn as pmr
 from torchvision import transforms
 from PIL import Image
+import os
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "7"
 
 use_cuda = True
 dataset = "coco"
@@ -64,6 +66,7 @@ for i, (image, target) in enumerate(d):
     plt.figure(figsize=(12, 15))
     pmr.show(image, result, ds.classes)
     plt.imshow(torch.sum(result["masks"], axis=0).cpu())
+    plt.axis("off")
     plt.show()
 
     if i >= iters - 1:
@@ -85,4 +88,5 @@ for img_dir in img_dir_list:
     print(result.keys())
     pmr.show(image, result, ds.classes)
     plt.imshow(torch.sum(result["masks"], axis=0).cpu())
+    plt.axis("off")
     plt.show()

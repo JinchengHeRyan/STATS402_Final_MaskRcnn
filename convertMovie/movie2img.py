@@ -34,7 +34,7 @@ def main():
         pass
 
     os.mkdir(EXTRACT_FOLDER)
-    # 抽取帧图片，并保存到指定路径
+    # Extract and save
     extract_frames(VIDEO_PATH, EXTRACT_FOLDER, 1)
 
 

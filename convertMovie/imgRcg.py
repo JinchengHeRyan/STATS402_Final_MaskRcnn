@@ -22,7 +22,7 @@ data_dir = "/mingback/students/jincheng/data/COCO2017"
 ds = pmr.datasets(dataset, data_dir, "val2017", train=True)
 model = pmr.maskrcnn_resnet50(True, len(ds.classes) + 1).to(device)
 model.eval()
-model.head.score_thresh = 0.7
+model.head.score_thresh = 0.85
 
 if ckpt_path:
     checkpoint = torch.load(ckpt_path, map_location=device)
@@ -47,8 +47,10 @@ for idx in range(len(img_dir_list)):
     with torch.no_grad():
         result = model(image)
 
-    plt.figure(figsize=(12, 15))
+    plt.figure(figsize=(12, 8))
     savePath = "./output/{}.jpg".format(idx)
+    maskSavePath = "./output/{}_mask.jpg".format(idx)
     pmr.show(image, result, ds.classes, save_path=savePath, figsize=(12, 8))
     # plt.imshow(torch.sum(result["masks"], axis=0).cpu())
+    # plt.savefig(maskSavePath)
     # plt.show()

@@ -18,7 +18,8 @@ import os
 import time
 import torch
 import pytorch_mask_rcnn as pmr
-    
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "6"
     
 def main(args):
     device = torch.device("cuda" if torch.cuda.is_available() and args.use_cuda else "cpu")
@@ -29,7 +30,7 @@ def main(args):
     d_test = pmr.datasets(args.dataset, args.data_dir, "val2017", train=True) # set train=True for eval
 
     print(args)
-    num_classes = len(d_test.dataset.classes) + 1
+    num_classes = len(d_test.classes) + 1
     model = pmr.maskrcnn_resnet50(False, num_classes).to(device)
     
     checkpoint = torch.load(args.ckpt_path, map_location=device)
@@ -56,8 +57,8 @@ if __name__ == "__main__":
     args = parser.parse_args([]) # for Jupyter Notebook
     
     args.use_cuda = True
-    args.data_dir = "/data/coco2017"
-    args.ckpt_path = "/ckpt/maskrcnn_coco.pth"
+    args.data_dir = "/mingback/students/jincheng/data/COCO2017"
+    args.ckpt_path = "./chkpt/maskrcnn_coco-1000.pth"
     args.results = os.path.join(os.path.dirname(args.ckpt_path), "results.pth")
     
     main(args)

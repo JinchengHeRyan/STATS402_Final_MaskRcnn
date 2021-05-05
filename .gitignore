@@ -9,3 +9,4 @@ image/*
 !image/001.png
 convertMovie/img/*
 convertMovie/movie/*
+logs/

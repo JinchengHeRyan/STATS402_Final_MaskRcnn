@@ -1,0 +1,5 @@
+{
+    "epochs": 1100,
+    "dataset": "coco",
+    "data_dir": "/mingback/students/jincheng/data/COCO2017"
+}

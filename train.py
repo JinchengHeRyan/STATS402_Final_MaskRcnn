@@ -6,9 +6,10 @@ import time
 import torch
 import pytorch_mask_rcnn as pmr
 import logging
+import json
 
 
-def main(args):
+def main(args, config):
     log_dir = "./logs"
     log_path = os.path.join(
         log_dir, time.strftime("%Y-%m-%d-%H%M.log", time.localtime(time.time()))
@@ -28,12 +29,14 @@ def main(args):
 
     # ---------------------- prepare data loader ------------------------------- #
 
-    dataset_train = pmr.datasets(args.dataset, args.data_dir, "train2017", train=True)
+    dataset_train = pmr.datasets(
+        config["dataset"], config["data_dir"], "train2017", train=True
+    )
     indices = torch.randperm(len(dataset_train)).tolist()
     d_train = torch.utils.data.Subset(dataset_train, indices)
 
     d_test = pmr.datasets(
-        args.dataset, args.data_dir, "val2017", train=True
+        config["dataset"], config["data_dir"], "val2017", train=True
     )  # set train=True for eval
 
     args.warmup_iters = max(1000, len(d_train))
@@ -71,12 +74,14 @@ def main(args):
 
     since = time.time()
     logger.info(
-        "\nalready trained: {} epochs; to {} epochs".format(start_epoch, args.epochs)
+        "\nalready trained: {} epochs; to {} epochs".format(
+            start_epoch, config["epochs"]
+        )
     )
 
     # ------------------------------- train ------------------------------------ #
 
-    for epoch in range(start_epoch, args.epochs):
+    for epoch in range(start_epoch, config["epochs"]):
         logger.info("epoch: {}".format(epoch + 1))
 
         A = time.time()
@@ -131,10 +136,18 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-c",
+        "--config",
+        default=None,
+        type=str,
+        required=True,
+        help="config file path (default: None)",
+    )
     parser.add_argument("--use-cuda", action="store_true")
 
-    parser.add_argument("--dataset", default="coco", help="coco or voc")
-    parser.add_argument("--data-dir", default="/data/coco2017")
+    # parser.add_argument("--dataset", default="coco", help="coco or voc")
+    # parser.add_argument("--data-dir", default="/data/coco2017")
     parser.add_argument("--ckpt_path")
     parser.add_argument("--results")
 
@@ -144,7 +157,7 @@ if __name__ == "__main__":
     parser.add_argument("--momentum", type=float, default=0.9)
     parser.add_argument("--weight-decay", type=float, default=0.0001)
 
-    parser.add_argument("--epochs", type=int, default=1)
+    # parser.add_argument("--epochs", type=int, default=1)
     parser.add_argument(
         "--iters", type=int, default=200, help="max iters per epoch, -1 denotes auto"
     )
@@ -153,16 +166,19 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
+    with open(args.config) as rfile:
+        config = json.load(rfile)
+
     if args.lr is None:
         args.lr = 0.02 * 1 / 16  # lr should be 'batch_size / 16 * 0.02'
     if args.ckpt_path is None:
-        args.ckpt_path = "./maskrcnn_{}.pth".format(args.dataset)
+        args.ckpt_path = "./maskrcnn_{}.pth".format(config["dataset"])
     else:
         os.makedirs(args.ckpt_path, exist_ok=True)
         args.ckpt_path = os.path.join(
-            args.ckpt_path, "maskrcnn_{}.pth".format(args.dataset)
+            args.ckpt_path, "maskrcnn_{}.pth".format(config["dataset"])
         )
     if args.results is None:
         args.results = os.path.join(os.path.dirname(args.ckpt_path), "results.pth")
 
-    main(args)
+    main(args, config)

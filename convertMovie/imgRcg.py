@@ -11,7 +11,7 @@ import pytorch_mask_rcnn as pmr
 os.environ["CUDA_VISIBLE_DEVICES"] = "6"
 
 use_cuda = True
-ckpt_path = "../chkpt/maskrcnn_coco-1000.pth"
+ckpt_path = "../chkpt/saved/maskrcnn_coco-1000.pth"
 device = torch.device("cuda" if torch.cuda.is_available() and use_cuda else "cpu")
 if device.type == "cuda":
     pmr.get_gpu_prop(show=True)

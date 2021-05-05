@@ -58,7 +58,7 @@ if __name__ == "__main__":
     
     args.use_cuda = True
     args.data_dir = "/mingback/students/jincheng/data/COCO2017"
-    args.ckpt_path = "./chkpt/maskrcnn_coco-1000.pth"
+    args.ckpt_path = "chkpt/saved/maskrcnn_coco-1000.pth"
     args.results = os.path.join(os.path.dirname(args.ckpt_path), "results.pth")
     
     main(args)

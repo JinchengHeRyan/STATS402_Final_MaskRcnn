@@ -11,4 +11,4 @@ elif [ $dataset = "coco" ]; then
   data_dir="/mingback/students/jincheng/data/COCO2017"
 fi
 
-CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --use-cuda --epochs ${epochs} --iters ${iters} --dataset ${dataset} --data-dir ${data_dir} --ckpt_path=${ckpt_path}
+CUDA_VISIBLE_DEVICES=6 python train.py --use-cuda --epochs ${epochs} --iters ${iters} --dataset ${dataset} --data-dir ${data_dir} --ckpt_path=${ckpt_path}

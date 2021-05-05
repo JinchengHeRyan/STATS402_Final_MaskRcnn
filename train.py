@@ -5,15 +5,26 @@ import re
 import time
 import torch
 import pytorch_mask_rcnn as pmr
+import logging
 
 
 def main(args):
+    log_dir = "./logs"
+    log_path = os.path.join(
+        log_dir, time.strftime("%Y-%m-%d-%H%M.log", time.localtime(time.time()))
+    )
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        handlers=[logging.FileHandler(log_path), logging.StreamHandler()],
+    )
+    logger = logging.getLogger()
     device = torch.device(
         "cuda" if torch.cuda.is_available() and args.use_cuda else "cpu"
     )
     if device.type == "cuda":
         pmr.get_gpu_prop(show=True)
-    print("\ndevice: {}".format(device))
+    logger.info("\ndevice: {}".format(device))
 
     # ---------------------- prepare data loader ------------------------------- #
 
@@ -39,6 +50,9 @@ def main(args):
     )
     lr_lambda = lambda x: 0.1 ** bisect.bisect([22, 26], x)
 
+    logger.info(model)
+    logger.info("-" * 50)
+
     start_epoch = 0
     prefix, ext = os.path.splitext(args.ckpt_path)
     ckpts = glob.glob(prefix + "-*" + ext)
@@ -56,16 +70,18 @@ def main(args):
         torch.cuda.empty_cache()
 
     since = time.time()
-    print("\nalready trained: {} epochs; to {} epochs".format(start_epoch, args.epochs))
+    logger.info(
+        "\nalready trained: {} epochs; to {} epochs".format(start_epoch, args.epochs)
+    )
 
     # ------------------------------- train ------------------------------------ #
 
     for epoch in range(start_epoch, args.epochs):
-        print("\nepoch: {}".format(epoch + 1))
+        logger.info("epoch: {}".format(epoch + 1))
 
         A = time.time()
         args.lr_epoch = lr_lambda(epoch) * args.lr
-        print(
+        logger.info(
             "lr_epoch: {:.4f}, factor: {:.4f}".format(args.lr_epoch, lr_lambda(epoch))
         )
         iter_train = pmr.train_one_epoch(model, optimizer, d_train, device, epoch, args)
@@ -79,7 +95,13 @@ def main(args):
         print("training: {:.2f} s, evaluation: {:.2f} s".format(A, B))
         pmr.collect_gpu_info("maskrcnn", [1 / iter_train, 1 / iter_eval])
         if len(list(eval_output.buffer)) > 0:
-            print(eval_output.get_AP())
+            # print(eval_output.get_AP())
+            logger.info(
+                "bbox AP: {}; mask AP: {}".format(
+                    float(eval_output.get_AP().get("bbox AP")),
+                    float(eval_output.get_AP().get("mask AP")),
+                )
+            )
 
         pmr.save_ckpt(
             model, optimizer, trained_epoch, args.ckpt_path, eval_info=str(eval_output)
@@ -100,9 +122,9 @@ def main(args):
 
     # -------------------------------------------------------------------------- #
 
-    print("\ntotal time of this training: {:.2f} s".format(time.time() - since))
+    logger.info("\ntotal time of this training: {:.2f} s".format(time.time() - since))
     if start_epoch < args.epochs:
-        print("already trained: {} epochs\n".format(trained_epoch))
+        logger.info("already trained: {} epochs\n".format(trained_epoch))
 
 
 if __name__ == "__main__":

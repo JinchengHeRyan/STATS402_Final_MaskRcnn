@@ -26,7 +26,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "7"
 use_cuda = True
 dataset = "coco"
 # ckpt_path = "../ckpt/maskrcnn_voc-5.pth"
-ckpt_path = "./chkpt/maskrcnn_coco-1000.pth"
+ckpt_path = "chkpt/saved/maskrcnn_coco-1000.pth"
 # data_dir = "E:/PyTorch/data/voc2012/"
 data_dir = "/mingback/students/jincheng/data/COCO2017"
 

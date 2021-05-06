@@ -30,13 +30,20 @@ def main(args, config):
     # ---------------------- prepare data loader ------------------------------- #
 
     dataset_train = pmr.datasets(
-        config["dataset"], config["data_dir"], "train2017", train=True
+        config["dataset"],
+        config["data_dir"],
+        "train2017" if config["dataset"] == "coco" else "train",
+        train=True,
     )
+    print("classes = ", dataset_train.classes)
     indices = torch.randperm(len(dataset_train)).tolist()
     d_train = torch.utils.data.Subset(dataset_train, indices)
 
     d_test = pmr.datasets(
-        config["dataset"], config["data_dir"], "val2017", train=True
+        config["dataset"],
+        config["data_dir"],
+        "val2017" if config["dataset"] == "coco" else "val",
+        train=True,
     )  # set train=True for eval
 
     args.warmup_iters = max(1000, len(d_train))

@@ -11,7 +11,32 @@ except:
     pass
 
 
-def train_one_epoch(model, optimizer, data_loader, device, epoch, args):
+class AverageVal(object):
+    """Computes and stores the average and current value"""
+
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.val = 0
+        self.avg = 0
+        self.sum = 0
+        self.count = 0
+
+    def update(self, val, n=1):
+        self.val = val
+        self.sum += val * n
+        self.count += n
+        self.avg = self.sum / self.count
+
+
+def train_one_epoch(model, optimizer, data_loader, device, epoch, args, logger=None):
+    rpn_objectness_losses = AverageVal()
+    rpn_box_losses = AverageVal()
+    roi_classifier_losses = AverageVal()
+    roi_box_losses = AverageVal()
+    roi_mask_losses = AverageVal()
+
     for p in optimizer.param_groups:
         p["lr"] = args.lr_epoch
 
@@ -38,6 +63,12 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch, args):
         total_loss = sum(losses.values())
         m_m.update(time.time() - S)
 
+        rpn_objectness_losses.update(losses["rpn_objectness_loss"].item())
+        rpn_box_losses.update(losses["rpn_box_loss"].item())
+        roi_classifier_losses.update(losses["roi_classifier_loss"].item())
+        roi_box_losses.update(losses["roi_box_loss"].item())
+        roi_mask_losses.update(losses["roi_mask_loss"].item())
+
         S = time.time()
         total_loss.backward()
         optimizer.step()
@@ -60,6 +91,22 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch, args):
             1000 * A / iters, 1000 * t_m.avg, 1000 * m_m.avg, 1000 * b_m.avg
         )
     )
+    if logger is not None:
+        logger.info(
+            "[Train] Epoch:{}\t"
+            "rpn_objectness_loss:{:.4f}\t"
+            "rpn_box_loss:{:.4f}\t"
+            "roi_classifier_loss:{:.4f}\t"
+            "roi_box_loss:{:.4f}\t"
+            "roi_mask_loss:{:.4f}".format(
+                epoch,
+                rpn_objectness_losses.avg,
+                rpn_box_losses.avg,
+                roi_classifier_losses.avg,
+                roi_box_losses.avg,
+                roi_mask_losses.avg,
+            ),
+        )
     return A / iters
 
 

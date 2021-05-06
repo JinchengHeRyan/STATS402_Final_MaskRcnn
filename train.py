@@ -89,7 +89,9 @@ def main(args, config):
         logger.info(
             "lr_epoch: {:.4f}, factor: {:.4f}".format(args.lr_epoch, lr_lambda(epoch))
         )
-        iter_train = pmr.train_one_epoch(model, optimizer, d_train, device, epoch, args)
+        iter_train = pmr.train_one_epoch(
+            model, optimizer, d_train, device, epoch, args, logger=logger
+        )
         A = time.time() - A
 
         B = time.time()

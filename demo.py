@@ -24,18 +24,20 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "7"
 
 use_cuda = True
-dataset = "coco"
+# dataset = "coco"
+dataset = "voc"
 # ckpt_path = "../ckpt/maskrcnn_voc-5.pth"
-ckpt_path = "chkpt/saved/maskrcnn_coco-1000.pth"
+ckpt_path = "./chkpt/saved/maskrcnn_voc-255.pth"
 # data_dir = "E:/PyTorch/data/voc2012/"
-data_dir = "/mingback/students/jincheng/data/COCO2017"
+# data_dir = "/mingback/students/jincheng/data/COCO2017"
+data_dir = "/mingback/students/jincheng/data/VOC2012/VOCdevkit/VOC2012"
 
 device = torch.device("cuda" if torch.cuda.is_available() and use_cuda else "cpu")
 if device.type == "cuda":
     pmr.get_gpu_prop(show=True)
 print("\ndevice: {}".format(device))
 
-ds = pmr.datasets(dataset, data_dir, "val2017", train=True)
+ds = pmr.datasets(dataset, data_dir, "val2017" if dataset == "coco" else "val", train=True)
 indices = torch.randperm(len(ds)).tolist()
 d = torch.utils.data.Subset(ds, indices)
 

@@ -105,7 +105,7 @@ for img_dir in img_dir_list:
 
     target = {k: v.to(device) for k, v in target.items()}
 
-    n_range = range(2, 14)
+    n_range = range(2, 10)
 
     obj_count = list()
 
@@ -128,3 +128,14 @@ for img_dir in img_dir_list:
 
         obj_count.append(ans)
     print(obj_count)
+
+# %%
+plot_x = [i**2 for i in n_range]
+print(plot_x)
+
+plt.figure(figsize=(12, 8))
+plt.plot(plot_x, obj_count, 'o-')
+plt.xlabel("Number of blocks cut", fontsize=15)
+plt.ylabel("Detected objects count", fontsize=15)
+plt.title("High resolution input strategy", fontsize=20)
+plt.show()

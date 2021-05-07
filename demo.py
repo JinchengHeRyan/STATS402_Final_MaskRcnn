@@ -37,7 +37,9 @@ if device.type == "cuda":
     pmr.get_gpu_prop(show=True)
 print("\ndevice: {}".format(device))
 
-ds = pmr.datasets(dataset, data_dir, "val2017" if dataset == "coco" else "val", train=True)
+ds = pmr.datasets(
+    dataset, data_dir, "val2017" if dataset == "coco" else "val", train=True
+)
 indices = torch.randperm(len(ds)).tolist()
 d = torch.utils.data.Subset(ds, indices)
 
@@ -92,3 +94,37 @@ for img_dir in img_dir_list:
     plt.imshow(torch.sum(result["masks"], axis=0).cpu())
     plt.axis("off")
     plt.show()
+
+# %%
+# High resolution input
+img_dir_list = ["image/mmexport1535710463698.jpg"]
+for img_dir in img_dir_list:
+    image = Image.open(img_dir)
+    image = image.convert("RGB")
+    image = transforms.ToTensor()(image)
+
+    target = {k: v.to(device) for k, v in target.items()}
+
+    n_range = range(2, 14)
+
+    obj_count = list()
+
+    print(image.shape)
+    for n in n_range:
+        print("current n = ", n)
+        ans = 0
+        for i in range(n):
+            for j in range(n):
+                img_cut = image[
+                    :,
+                    i * image.shape[1] // n : (i + 1) * image.shape[1] // n,
+                    j * image.shape[2] // n : (j + 1) * image.shape[2] // n,
+                ]
+                img_cut = img_cut.to(device)
+                with torch.no_grad():
+                    result = model(img_cut)
+
+                ans += result["masks"].shape[0]
+
+        obj_count.append(ans)
+    print(obj_count)

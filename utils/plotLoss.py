@@ -89,5 +89,7 @@ for lossList in losses_list:
 
 plt.legend()
 plt.ylim(0, 0.4)
+plt.xlabel("epochs")
+plt.ylabel("Loss")
 plt.title("{} dataset".format(dataset))
 plt.show()

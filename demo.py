@@ -111,6 +111,7 @@ for img_dir in img_dir_list:
 
     print(image.shape)
     for n in n_range:
+        mask_all = torch.zeros(n * image.shape[1] // n, n * image.shape[2] // n)
         print("current n = ", n)
         ans = 0
         for i in range(n):
@@ -125,8 +126,16 @@ for img_dir in img_dir_list:
                     result = model(img_cut)
 
                 ans += result["masks"].shape[0]
+                mask_all[
+                    i * image.shape[1] // n : (i + 1) * image.shape[1] // n,
+                    j * image.shape[2] // n : (j + 1) * image.shape[2] // n,
+                ] = torch.sum(result["masks"], axis=0)
 
         obj_count.append(ans)
+        plt.figure(figsize=(12, 15))
+        plt.imshow(mask_all)
+        plt.axis("off")
+        plt.show()
     print(obj_count)
 
 # %%

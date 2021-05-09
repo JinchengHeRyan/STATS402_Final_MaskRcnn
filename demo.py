@@ -27,7 +27,7 @@ use_cuda = True
 # dataset = "coco"
 dataset = "voc"
 # ckpt_path = "../ckpt/maskrcnn_voc-5.pth"
-ckpt_path = "./chkpt/saved/maskrcnn_voc-255.pth"
+ckpt_path = "./chkpt/saved/maskrcnn_voc-306.pth"
 # data_dir = "E:/PyTorch/data/voc2012/"
 # data_dir = "/mingback/students/jincheng/data/COCO2017"
 data_dir = "/mingback/students/jincheng/data/VOC2012/VOCdevkit/VOC2012"
@@ -130,12 +130,48 @@ for img_dir in img_dir_list:
     print(obj_count)
 
 # %%
-plot_x = [i**2 for i in n_range]
+plot_x = [i ** 2 for i in n_range]
 print(plot_x)
 
 plt.figure(figsize=(12, 8))
-plt.plot(plot_x, obj_count, 'o-')
+plt.plot(plot_x, obj_count, "o-")
 plt.xlabel("Number of blocks cut", fontsize=15)
 plt.ylabel("Detected objects count", fontsize=15)
 plt.title("High resolution input strategy", fontsize=20)
 plt.show()
+
+# %%
+img_dir_list = ["image/IMG_0952.jpeg"]
+for img_dir in img_dir_list:
+    image = Image.open(img_dir)
+    image = image.convert("RGB")
+    image_gray = image.convert("L")
+    image_gray = transforms.ToTensor()(image_gray)
+    image = transforms.ToTensor()(image)
+    image = image.to(device)
+    target = {k: v.to(device) for k, v in target.items()}
+
+    with torch.no_grad():
+        result = model(image)
+
+    plt.figure(figsize=(12, 15))
+    thre = 0.6
+    img_mani = torch.zeros(image.shape).cuda()
+    img_mani[:, torch.sum(result["masks"], axis=0) > thre] = image[
+        :, torch.sum(result["masks"], axis=0) > thre
+    ]
+    img_mani[:, torch.sum(result["masks"], axis=0) <= thre] = (
+        0.2989 * image[0, torch.sum(result["masks"], axis=0) <= thre]
+        + 0.5870 * image[1, torch.sum(result["masks"], axis=0) <= thre]
+        + 0.1140 * image[2, torch.sum(result["masks"], axis=0) <= thre]
+    )
+    plt.imshow(img_mani.permute(1, 2, 0).cpu())
+    plt.axis("off")
+    plt.show()
+
+    plt.figure(figsize=(12, 15))
+
+    pmr.show(image, result, ds.classes)
+    plt.imshow(torch.sum(result["masks"], axis=0).cpu())
+    plt.axis("off")
+    plt.show()

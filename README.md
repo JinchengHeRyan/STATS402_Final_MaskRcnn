@@ -1,89 +1,81 @@
-# PyTorch-Simple-MaskRCNN
+# Pixel-wise segmentation is all you need
 
-A PyTorch implementation of simple Mask R-CNN.
+### Before running the code
 
-This repository is a toy example of Mask R-CNN with two features:
-
-- It is pure python code and can be run immediately using PyTorch 1.4 without build
-- Simplified construction and easy to understand how the model works
-
-The code is based largely on [TorchVision](https://github.com/pytorch/vision), but simplified a lot and faster (1.5x).
-
-## Requirements
-
-- **Windows** or **Linux**, with **Python ≥ 3.6**
-
-- **[PyTorch](https://pytorch.org/) ≥ 1.4.0**
-
-- **matplotlib** - visualizing images and results
-
-- **[pycocotools](https://github.com/cocodataset/cocoapi)** - for COCO dataset and evaluation; Windows version
-  is [here](https://github.com/philferriere/cocoapi)
-
-There is a problem with pycocotools for Windows. See [Issue #356](https://github.com/cocodataset/cocoapi/issues/356).
-
-Besides, it's better to remove the prints in pycocotools.
-
-## Datasets
-
-This repository supports VOC and COCO datasets.
-
-If you want to train your own dataset, you may:
-
-- write the correponding dataset code
-
-- convert your dataset to COCO-style
-
-**PASCAL VOC
-2012** ([download](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar)): ```http://host.robots.ox.ac.uk/pascal/VOC/voc2012/```
-
-**MS COCO 2017**: ```http://cocodataset.org/```
-
-COCO dataset directory should be like this:
+The required packages are as the following, the file `requirements.txt` also contains these information. This repo can
+work with these requirements at least on our computer with Linux system equipped GeForce GTX 1080 Ti (10G).
 
 ```
-coco2017/
-    annotations/
-        instances_train2017.json
-        instances_val2017.json
-        ...
-    train2017/
-        000000000009.jpg
-        ...
-    val2017/
-        000000000139.jpg
-        ...
+matplotlib==3.1.1
+numpy==1.17.2
+opencv_python==4.5.1.48
+torchvision==0.8.2
+torch==1.7.1
+pycocotools==2.0.2
+dali==1.0.9
+Pillow==8.2.0
 ```
 
-The code will check the dataset first before start, filtering samples without annotations.
+Before run the code, first should download the data using this link:
 
-## Training
+Then edit `config/config.json`, if the dataset is `COCO2017`, then should edit this file in this way
 
-```
-python train.py --use-cuda --iters 200 --dataset coco --data-dir /data/coco2017
-```
-
-or modify the parameters in ```run.sh```, and run:
-
-```
-bash ./run.sh
+```json
+{
+    "epochs": 1100,
+    "dataset": "coco",
+    "data_dir": "/your/path/to/data/COCO2017"
+}
 ```
 
-Note: This is a simple model and only supports ```batch_size = 1```.
+If the dataset is `VOC2012`, then should edit this config file in this way
 
-The code will save and resume automatically using the checkpoint file.
+```json
+{
+    "epochs": 1100,
+    "dataset": "voc",
+    "data_dir": "/your/path/to/data/VOCdevkit/VOC2012"
+}
+```
 
-## Evaluation
+### Train the model
 
-- Modify the parameters in ```eval.ipynb``` to test the model.
+After editing the config file, then edit `run.sh`, based on your own gpu situation, for example, if you have one gpu,
+then should edit the first part of the last line in `run.sh` to be like this
 
-![example](https://github.com/Okery/PyTorch-Simple-MaskRCNN/blob/master/image/001.png)
+```shell
+CUDA_VISIBLE_DEVICES=0 python train.py -c config/config.json --use-cuda --ckpt_path=${ckpt_path} --iters ${iters}
+```
 
-## Performance
+After editing the `run.sh`, run the following command to begin training
 
-The model utilizes part of TorchVision's weights, which is pretrained on COCO dataset.
+```shell
+bash run.sh
+```
 
-Test on VOC 2012 Segmentation val, on 1 RTX 2080Ti GPU:
+During the training, the saved parameters of the model would be saved in `chkpt/` directory, and the log file would be
+saved in `logs/` directory.
 
-| model | backbone | imgs/s (train) | imgs/s (test)|epoch | bbox AP | mask AP | | ---- | ---- | --- | --- | -- | -- | --
-| | Mask R-CNN | ResNet 50 | 11.5 | 15.8 | 5 | 52.2 | 37.0 |
+### Run the demo code
+
+As you can see in this repo, there are files as `demo.ipynb`, `demo.py`, `eval.ipynb`, `eval.py`. The code content
+between `demo.ipynb` and `demo.py`, and between `eval.ipynb` and `eval.py` are identical, the reason to store `demo.py`
+and `eval.py` is only for convenient git commit, I suggest if you want to see the demo, run the notebook `demo.ipynb`.
+And we have already ran this notebook, you can directly see the result of the demo, and of course you can run again this
+by yourselves but with at least one GPU. In this notebook, it contains the demo of doing segmentation on our example
+pictures, the demo of high resolution input image, and the demo of extracting the object with RGB color scale and all
+the backgound is gray scale.
+
+Also before running the demo notebook, change the following line of code in the first cell of the notebook based on your
+own GPU situation
+
+```python
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+```
+
+This demo notebook should load the learned model parameters in `chkpt/saved/` directory, and our demo notebook loads the
+parameters learned from VOC2012 dataset, if you want to change the model learned from COCO dataset, the three
+parameters `dataset`, `ckpt_path`, `data_dir` need to change to the correct version.
+
+Another important thing is that in order to successfully run the demo code, the dataset is needed to load some important
+files. 

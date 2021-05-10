@@ -16,7 +16,30 @@ dali==1.0.9
 Pillow==8.2.0
 ```
 
-Before run the code, first should download the data using this link:
+Before run the code, first should download the following data:
+
+VOC2012:
+
+http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar
+
+We also put VOC dataset in the Duke Box, which can be downloaded from there.
+
+COCO2017:
+
+http://images.cocodataset.org/zips/train2017.zip
+
+http://images.cocodataset.org/annotations/annotations_trainval2017.zip
+
+http://images.cocodataset.org/zips/val2017.zip
+
+http://images.cocodataset.org/annotations/stuff_annotations_trainval2017.zip
+
+http://images.cocodataset.org/zips/test2017.zip
+
+http://images.cocodataset.org/annotations/image_info_test2017.zip
+
+All the above links of COCO dataset should be downloaded and unzip correctly. Since it is too big for us to upload, so
+it can only be downloaded by yourself.
 
 Then edit `config/config.json`, if the dataset is `COCO2017`, then should edit this file in this way
 

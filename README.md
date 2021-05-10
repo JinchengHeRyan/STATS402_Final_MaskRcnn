@@ -12,7 +12,6 @@ opencv_python==4.5.1.48
 torchvision==0.8.2
 torch==1.7.1
 pycocotools==2.0.2
-dali==1.0.9
 Pillow==8.2.0
 ```
 
